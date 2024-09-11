@@ -27,12 +27,6 @@ const imagekit = new ImageKit({
   privateKey: process.env.IMAGE_KIT_PRIVATE_KEY,
 });
 
-app.get("/api/test", ClerkExpressRequireAuth(), (req, res) => {
-  const userId = req.auth.userId;
-  console.log("Test successful,", userId);
-  return res.json({ message: "Test successful" });
-});
-
 app.get("/api/upload", (req, res) => {
   const result = imagekit.getAuthenticationParameters();
   res.send(result);
@@ -83,7 +77,7 @@ app.post("/api/chats", ClerkExpressRequireAuth(), async (req, res) => {
     }
 
     console.log("Chat has been added successfully");
-    return res.status(201).json({ chatId: newChat._id });
+    res.status(201).send(newChat._id);
   } catch (err) {
     console.log(err);
     res.status(500).send("Error creating chat!");
@@ -118,6 +112,35 @@ app.get("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
   }
 });
 
+app.put("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
+  const userId = req.auth.userId;
+
+  const { question, answer, img } = req.body;
+
+  const newItems = [
+    ...(question
+      ? [{ role: "user", parts: [{ text: question }], ...(img && { img }) }]
+      : []),
+    { role: "model", parts: [{ text: answer }] },
+  ];
+
+  try {
+    const updatedChat = await Chat.updateOne(
+      { _id: req.params.id, userId },
+      {
+        $push: {
+          history: {
+            $each: newItems,
+          },
+        },
+      }
+    );
+    res.status(200).send(updatedChat);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error adding conversation!");
+  }
+});
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
