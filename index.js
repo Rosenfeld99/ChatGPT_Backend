@@ -163,6 +163,7 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
+// LISTENER SERVER
 app.listen(port, () => {
   console.log("Server running on 3000");
 });
