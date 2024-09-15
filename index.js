@@ -4,6 +4,8 @@ import cors from "cors";
 import "./db/mongoConnect.js";
 import Chat from "./models/chat.js";
 import UserChats from "./models/userChat.js";
+import path from "path"
+import url, { fileURLToPath } from "url";
 import {
   ClerkExpressRequireAuth,
   ClerkExpressWithAuth,
@@ -12,9 +14,12 @@ import {
 const port = process.env.PORT || 3000;
 const app = express();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:3000"],
+    origin: ["http://localhost:5173","http://localhost:5174", "http://localhost:3000"],
     credentials: true,
   })
 );
@@ -145,6 +150,13 @@ app.put("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(401).send("Unauthenticated!");
+});
+
+// PRODUCTION
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
 });
 
 app.listen(port, () => {
