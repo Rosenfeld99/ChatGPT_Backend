@@ -6,10 +6,7 @@ import Chat from "./models/chat.js";
 import UserChats from "./models/userChat.js";
 import path from "path";
 import url, { fileURLToPath } from "url";
-import {
-  ClerkExpressRequireAuth,
-  ClerkExpressWithAuth,
-} from "@clerk/clerk-sdk-node";
+import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
 
 const port = process.env.PORT || 3000;
 const app = express();
@@ -23,6 +20,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:5174",
       "http://localhost:3000",
+      "https://chatgpt-backend-ggqm.onrender.com",
     ],
     credentials: true,
   })
@@ -157,8 +155,9 @@ app.use((err, req, res, next) => {
 });
 
 // PRODUCTION
-app.use(express.static(path.join(__dirname, "./public/index.html")));
+app.use(express.static(path.join(__dirname, "./public")));
 
+// DEFUALTS PATH
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "./public/index.html"));
 });
