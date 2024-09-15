@@ -40,6 +40,10 @@ app.get("/api/upload", (req, res) => {
   res.send(result);
 });
 
+app.get("/api/test", (req, res) => {
+  return res.json({msg:"test working!!!"});
+});
+
 app.post("/api/chats", ClerkExpressWithAuth(), async (req, res) => {
   const userId = req.auth.userId;
   const { text } = req.body;
