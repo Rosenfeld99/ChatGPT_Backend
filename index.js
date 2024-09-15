@@ -4,7 +4,7 @@ import cors from "cors";
 import "./db/mongoConnect.js";
 import Chat from "./models/chat.js";
 import UserChats from "./models/userChat.js";
-import path from "path"
+import path from "path";
 import url, { fileURLToPath } from "url";
 import {
   ClerkExpressRequireAuth,
@@ -19,7 +19,11 @@ const __dirname = path.dirname(__filename);
 
 app.use(
   cors({
-    origin: ["http://localhost:5173","http://localhost:5174", "http://localhost:3000"],
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:3000",
+    ],
     credentials: true,
   })
 );
@@ -91,12 +95,12 @@ app.post("/api/chats", ClerkExpressRequireAuth(), async (req, res) => {
 
 app.get("/api/userchats", ClerkExpressRequireAuth(), async (req, res) => {
   const userId = req.auth.userId;
-  
+
   try {
     const userChats = await UserChats.find({ userId });
 
     console.log(userChats[0].chats);
-    
+
     res.status(200).send(userChats[0].chats);
   } catch (err) {
     console.log(err);
@@ -153,10 +157,10 @@ app.use((err, req, res, next) => {
 });
 
 // PRODUCTION
-app.use(express.static(path.join(__dirname, "../client/dist")));
+app.use(express.static(path.join(__dirname, "index.html")));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 app.listen(port, () => {
