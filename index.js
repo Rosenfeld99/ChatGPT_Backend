@@ -20,7 +20,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:5174",
       "http://localhost:3000",
-      "https://chatgpt-backend-ggqm.onrender.com",
+      // "https://chatgpt-backend-ggqm.onrender.com",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -100,7 +100,7 @@ app.get("/api/userchats", ClerkExpressRequireAuth(), async (req, res) => {
   try {
     const userChats = await UserChats.find({ userId });
 
-    console.log(userChats[0].chats);
+    // console.log(userChats[0].chats);
 
     res.status(200).send(userChats[0].chats);
   } catch (err) {
