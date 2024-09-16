@@ -21,7 +21,7 @@ app.use(
       "http://localhost:5174",
       "http://localhost:3000",
     ],
-    credentials: true,
+    credentials: "include",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
