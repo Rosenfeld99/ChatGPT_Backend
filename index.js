@@ -21,7 +21,7 @@ app.use(
       "http://localhost:5174",
       "http://localhost:3000",
     ],
-    credentials: "include",
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -96,11 +96,12 @@ app.post("/api/chats", ClerkExpressWithAuth(), async (req, res) => {
   }
 });
 
-app.get("/api/userchats",  async (req, res) => {
+app.get("/api/userchats", async (req, res) => {
   // console.log("Request auth:", req.auth.userId);
   // console.log("Request :", req);
   // const userId = req.auth.userId;
   const userId = req.params.userId;
+  console.log("req.params.userId : ", req.params.userId);
 
   try {
     const userChats = await UserChats.find({ userId });
