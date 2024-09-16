@@ -6,7 +6,7 @@ import Chat from "./models/chat.js";
 import UserChats from "./models/userChat.js";
 import path from "path";
 import url, { fileURLToPath } from "url";
-// import { ClerkExpressWithAuth } from "@clerk/clerk-sdk-node";
+import { ClerkExpressWithAuth } from "@clerk/clerk-sdk-node";
 
 const port = process.env.PORT || 3000;
 const app = express();
