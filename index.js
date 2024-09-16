@@ -6,7 +6,7 @@ import Chat from "./models/chat.js";
 import UserChats from "./models/userChat.js";
 import path from "path";
 import url, { fileURLToPath } from "url";
-import { ClerkExpressWithAuth} from "@clerk/clerk-sdk-node";
+import { ClerkExpressWithAuth } from "@clerk/clerk-sdk-node";
 
 const port = process.env.PORT || 3000;
 const app = express();
@@ -41,7 +41,7 @@ app.get("/api/upload", (req, res) => {
 });
 
 app.get("/api/test", (req, res) => {
-  return res.json({msg:"test working!!!"});
+  return res.json({ msg: "test working!!!" });
 });
 
 app.post("/api/chats", ClerkExpressWithAuth(), async (req, res) => {
@@ -156,6 +156,10 @@ app.put("/api/chats/:id", ClerkExpressWithAuth(), async (req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  console.log("err : ", err);
+  console.log("req : ", req);
+  console.log("res : ", res);
+
   console.error(err.stack);
   res.status(401).json({ error: "Unauthenticated!" });
 });
