@@ -6,7 +6,7 @@ import Chat from "./models/chat.js";
 import UserChats from "./models/userChat.js";
 import path from "path";
 import url, { fileURLToPath } from "url";
-import { ClerkExpressWithAuth } from "@clerk/clerk-sdk-node";
+// import { ClerkExpressWithAuth } from "@clerk/clerk-sdk-node";
 
 const port = process.env.PORT || 3000;
 const app = express();
@@ -96,10 +96,11 @@ app.post("/api/chats", ClerkExpressWithAuth(), async (req, res) => {
   }
 });
 
-app.get("/api/userchats", ClerkExpressWithAuth(), async (req, res) => {
-  console.log("Request auth:", req.auth.userId);
-  console.log("Request :", req);
-  const userId = req.auth.userId;
+app.get("/api/userchats",  async (req, res) => {
+  // console.log("Request auth:", req.auth.userId);
+  // console.log("Request :", req);
+  // const userId = req.auth.userId;
+  const userId = req.params.userId;
 
   try {
     const userChats = await UserChats.find({ userId });
@@ -156,14 +157,14 @@ app.put("/api/chats/:id", ClerkExpressWithAuth(), async (req, res) => {
   }
 });
 
-app.use((err, req, res, next) => {
-  console.log("err : ", err);
-  console.log("req : ", req);
-  console.log("res : ", res);
+// app.use((err, req, res, next) => {
+//   console.log("err : ", err);
+//   console.log("req : ", req);
+//   console.log("res : ", res);
 
-  console.error(err.stack);
-  res.status(401).json({ error: "Unauthenticated!" });
-});
+//   console.error(err.stack);
+//   res.status(401).json({ error: "Unauthenticated!" });
+// });
 
 // PRODUCTION
 app.use(express.static(path.join(__dirname, "./public")));
