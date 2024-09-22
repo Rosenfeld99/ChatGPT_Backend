@@ -7,7 +7,9 @@ import UserChats from "./models/userChat.js";
 import path from "path";
 import url, { fileURLToPath } from "url";
 import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
+import dotenv from "dotenv";
 
+dotenv.config();
 const port = process.env.PORT || 3000;
 const app = express();
 
@@ -21,7 +23,7 @@ app.use(
       "http://localhost:5174",
       "https://chat-ai-eli-rosenfeld.netlify.app", // Use HTTPS in production
     ],
-    credentials: true, // Allows cookies and authentication headers
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -96,12 +98,9 @@ app.post("/api/chats", ClerkExpressRequireAuth(), async (req, res) => {
   }
 });
 
-app.get("/api/userchats/:userId", async (req, res) => {
+app.get("/api/userchats", ClerkExpressRequireAuth(), async (req, res) => {
   try {
-    // const userId = req.auth.userId;
-    const userId = req.params.userId;
-    console.log("userId : ", userId);
-
+    const userId = req.auth.userId;
     const userChats = await UserChats.find({ userId });
     res.status(200).send(userChats[0]?.chats || []);
   } catch (err) {
