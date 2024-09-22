@@ -13,21 +13,25 @@ dotenv.config();
 const port = process.env.PORT || 3000;
 const app = express();
 
+console.log(process.env.CLERK_SECRET_KEY);
+
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "https://chat-ai-eli-rosenfeld.netlify.app", // Use HTTPS in production
+      "http://localhost:5173", // Local development frontend
+      "https://chat-ai-eli-rosenfeld.netlify.app", // Production frontend
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+
 app.use(ClerkExpressRequireAuth());
 app.use(express.json());
 
