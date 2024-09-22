@@ -6,7 +6,7 @@ import Chat from "./models/chat.js";
 import UserChats from "./models/userChat.js";
 import path from "path";
 import url, { fileURLToPath } from "url";
-import { ClerkExpressRequireAuth} from "@clerk/clerk-sdk-node";
+import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
 
 const port = process.env.PORT || 3000;
 const app = express();
@@ -26,7 +26,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
+app.use(ClerkExpressRequireAuth());
 app.use(express.json());
 
 const imagekit = new ImageKit({
@@ -41,7 +41,7 @@ app.get("/api/upload", (req, res) => {
 });
 
 app.get("/api/test", (req, res) => {
-  return res.json({msg:"test working!!!"});
+  return res.json({ msg: "test working!!!" });
 });
 
 app.post("/api/chats", ClerkExpressRequireAuth(), async (req, res) => {
@@ -96,26 +96,19 @@ app.post("/api/chats", ClerkExpressRequireAuth(), async (req, res) => {
   }
 });
 
-app.get("/api/userchats", ClerkExpressRequireAuth(), async (req, res, next) => {
+app.get("/api/userchats/:userId", async (req, res) => {
   try {
-    if (!req.auth || !req.auth.userId) {
-      return res.status(401).send("Unauthorized");
-    }
+    // const userId = req.auth.userId;
+    const userId = req.params.userId;
+    console.log("userId : ", userId);
 
-    const userId = req.auth.userId;
     const userChats = await UserChats.find({ userId });
-
-    if (!userChats) {
-      return res.status(404).send("No chats found");
-    }
-
-    res.status(200).send(userChats[0].chats);
+    res.status(200).send(userChats[0]?.chats || []);
   } catch (err) {
-    console.log("Error in middleware or fetching user chats:", err);
-    next(err);
+    console.log(err);
+    res.status(500).send("Error fetching user chats!");
   }
 });
-
 
 app.get("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
   const userId = req.auth.userId;
