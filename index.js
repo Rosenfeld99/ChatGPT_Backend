@@ -6,7 +6,7 @@ import Chat from "./models/chat.js";
 import UserChats from "./models/userChat.js";
 import path from "path";
 import url, { fileURLToPath } from "url";
-import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
+// import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -30,7 +30,7 @@ app.use(
   })
 );
 
-app.use(ClerkExpressRequireAuth());
+// app.use(ClerkExpressRequireAuth());
 app.use(express.json());
 
 const imagekit = new ImageKit({
@@ -48,8 +48,8 @@ app.get("/api/test", (req, res) => {
   return res.json({ msg: "test working!!!" });
 });
 
-app.post("/api/chats", ClerkExpressRequireAuth(), async (req, res) => {
-  const userId = req.auth.userId;
+app.post("/api/chats/:userId", async (req, res) => {
+  const userId = req.params.userId;
   const { text } = req.body;
 
   try {
@@ -100,9 +100,9 @@ app.post("/api/chats", ClerkExpressRequireAuth(), async (req, res) => {
   }
 });
 
-app.get("/api/userchats", ClerkExpressRequireAuth(), async (req, res) => {
+app.get("/api/userchats/:userId", async (req, res) => {
   try {
-    const userId = req.auth.userId;
+    const userId = req.params.userId;
     const userChats = await UserChats.find({ userId });
     res.status(200).send(userChats[0]?.chats || []);
   } catch (err) {
@@ -111,8 +111,8 @@ app.get("/api/userchats", ClerkExpressRequireAuth(), async (req, res) => {
   }
 });
 
-app.get("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
-  const userId = req.auth.userId;
+app.get("/api/chats/:id/:userId", async (req, res) => {
+  const userId = req.params.userId;
 
   try {
     const chat = await Chat.findOne({ _id: req.params.id, userId });
@@ -124,8 +124,8 @@ app.get("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
   }
 });
 
-app.put("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
-  const userId = req.auth.userId;
+app.put("/api/chats/:id/:userId", async (req, res) => {
+  const userId = req.params.userId;
 
   const { question, answer, img } = req.body;
 
@@ -154,10 +154,10 @@ app.put("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
   }
 });
 
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(401).json({ error: "Unauthenticated!" });
-});
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.status(401).json({ error: "Unauthenticated!" });
+// });
 
 // PRODUCTION
 app.use(express.static(path.join(__dirname, "./public")));
