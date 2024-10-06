@@ -2,12 +2,13 @@ import express from "express";
 import ImageKit from "imagekit";
 import cors from "cors";
 import "./db/mongoConnect.js";
-import Chat from "./models/chat.js";
-import UserChats from "./models/userChat.js";
 import path from "path";
 import url, { fileURLToPath } from "url";
 // import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
 import dotenv from "dotenv";
+import chatsCtrl from "./controllers/chatsCtrl.js";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from 'swagger-ui-express'
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -39,120 +40,41 @@ const imagekit = new ImageKit({
   privateKey: process.env.IMAGE_KIT_PRIVATE_KEY,
 });
 
+// Swagger setup
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: "3.0.0",
+    info: {
+      title: "CHAT AI API",
+      version: "1.0.0",
+      description: "API for managing user chats",
+    },
+    servers: [
+      {
+        url: "http://localhost:3000",
+      },
+    ],
+  },
+  apis: ["./swagger/*.js"], // Path to API documentation
+};
+
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 app.get("/api/upload", (req, res) => {
   const result = imagekit.getAuthenticationParameters();
   res.send(result);
 });
 
-app.get("/api/test", (req, res) => {
-  return res.json({ msg: "test working!!!" });
-});
+app.get("/api/test", chatsCtrl.testChat);
 
-app.post("/api/chats/:userId", async (req, res) => {
-  const userId = req.params.userId;
-  const { text } = req.body;
+app.post("/api/chats/:userId", chatsCtrl.createChat);
 
-  try {
-    // CREATE A NEW CHAT
-    const newChat = new Chat({
-      userId: userId,
-      history: [{ role: "user", parts: [{ text }] }],
-    });
+app.get("/api/userchats/:userId", chatsCtrl.getUserChats);
 
-    const savedChat = await newChat.save();
+app.get("/api/chats/:id/:userId", chatsCtrl.geteSingleChat);
 
-    // CHECK IF THE USERCHATS EXISTS
-    const userChats = await UserChats.find({ userId: userId });
-
-    // IF DOESN'T EXIST CREATE A NEW ONE AND ADD THE CHAT IN THE CHATS ARRAY
-    if (!userChats.length) {
-      const newUserChats = new UserChats({
-        userId: userId,
-        chats: [
-          {
-            _id: savedChat._id,
-            title: text.substring(0, 40),
-          },
-        ],
-      });
-
-      await newUserChats.save();
-    } else {
-      // IF EXISTS, PUSH THE CHAT TO THE EXISTING ARRAY
-      await UserChats.updateOne(
-        { userId: userId },
-        {
-          $push: {
-            chats: {
-              _id: savedChat._id,
-              title: text.substring(0, 40),
-            },
-          },
-        }
-      );
-    }
-
-    console.log("Chat has been added successfully");
-    res.status(201).send(newChat._id);
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Error creating chat!");
-  }
-});
-
-app.get("/api/userchats/:userId", async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const userChats = await UserChats.find({ userId });
-    res.status(200).send(userChats[0]?.chats || []);
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Error fetching user chats!");
-  }
-});
-
-app.get("/api/chats/:id/:userId", async (req, res) => {
-  const userId = req.params.userId;
-
-  try {
-    const chat = await Chat.findOne({ _id: req.params.id, userId });
-
-    res.status(200).send(chat);
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Error fetching chat!");
-  }
-});
-
-app.put("/api/chats/:id/:userId", async (req, res) => {
-  const userId = req.params.userId;
-
-  const { question, answer, img } = req.body;
-
-  const newItems = [
-    ...(question
-      ? [{ role: "user", parts: [{ text: question }], ...(img && { img }) }]
-      : []),
-    { role: "model", parts: [{ text: answer }] },
-  ];
-
-  try {
-    const updatedChat = await Chat.updateOne(
-      { _id: req.params.id, userId },
-      {
-        $push: {
-          history: {
-            $each: newItems,
-          },
-        },
-      }
-    );
-    res.status(200).send(updatedChat);
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Error adding conversation!");
-  }
-});
+app.put("/api/chats/:id/:userId", chatsCtrl.editChat);
 
 // app.use((err, req, res, next) => {
 //   console.error(err.stack);
