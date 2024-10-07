@@ -137,6 +137,55 @@ const chatCtrl = {
     getUserChats: async (req, res) => {
       // ... existing code
     },
+    /**
+   * @swagger
+   * /chats/{userId}/{id}:
+   *   delete:
+   *     summary: Delete a chat
+   *     tags: [Chats]
+   *     parameters:
+   *       - name: userId
+   *         in: path
+   *         required: true
+   *         description: ID of the user whose chat is to be deleted
+   *         schema:
+   *           type: string
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         description: ID of the chat to be deleted
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Chat deleted successfully
+   *       500:
+   *         description: Error deleting chat
+   */
+    deleteChat: async (req, res) => {
+      const userId = req.params.userId;
+      const chatId = req.params.id; // Assuming the chat ID is passed in the URL
+  
+      try {
+        // Delete the chat from the Chat collection
+        await Chat.deleteOne({ _id: chatId, userId });
+  
+        // Remove the chat from the UserChats
+        await UserChats.updateOne(
+          { userId: userId },
+          {
+            $pull: {
+              chats: { _id: chatId },
+            },
+          }
+        );
+  
+        res.status(200).send("Chat deleted successfully!");
+      } catch (err) {
+        console.log(err);
+        res.status(500).send("Error deleting chat!");
+      }
+    },
   };
   
   module.exports = chatCtrl;

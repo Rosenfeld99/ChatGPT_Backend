@@ -107,6 +107,30 @@ const chatCtrl = {
       res.status(500).send("Error fetching user chats!");
     }
   },
+  deleteChat: async (req, res) => {
+    const userId = req.params.userId;
+    const chatId = req.params.id; 
+
+    try {
+      // Delete the chat from the Chat collection
+      await Chat.deleteOne({ _id: chatId, userId });
+
+      // Remove the chat from the UserChats
+      await UserChats.updateOne(
+        { userId: userId },
+        {
+          $pull: {
+            chats: { _id: chatId },
+          },
+        }
+      );
+
+      res.status(200).send("Chat deleted successfully!");
+    } catch (err) {
+      console.log(err);
+      res.status(500).send("Error deleting chat!");
+    }
+  },
 };
 
 export default chatCtrl;

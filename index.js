@@ -76,6 +76,8 @@ app.get("/api/chats/:id/:userId", chatsCtrl.geteSingleChat);
 
 app.put("/api/chats/:id/:userId", chatsCtrl.editChat);
 
+app.delete("/chats/:userId/:id", chatsCtrl.deleteChat);
+
 // app.use((err, req, res, next) => {
 //   console.error(err.stack);
 //   res.status(401).json({ error: "Unauthenticated!" });
