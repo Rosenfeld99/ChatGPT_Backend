@@ -109,7 +109,7 @@ const chatCtrl = {
   },
   deleteChat: async (req, res) => {
     const userId = req.params.userId;
-    const chatId = req.params.id; 
+    const chatId = req.params.id;
 
     try {
       // Delete the chat from the Chat collection
@@ -129,6 +129,30 @@ const chatCtrl = {
     } catch (err) {
       console.log(err);
       res.status(500).send("Error deleting chat!");
+    }
+  },
+  renameChat: async (req, res) => {
+    const userId = req.params.userId;
+    const chatId = req.params.id;
+    const { newTitle } = req.body;
+
+    try {
+      // Find the UserChats document for the user and update the title of the specified chat
+      const result = await UserChats.updateOne(
+        { userId, "chats._id": chatId },
+        { $set: { "chats.$.title": newTitle } }
+      );
+
+      if (result.nModified === 0) {
+        return res
+          .status(404)
+          .send("Chat not found or title is the same as before!");
+      }
+
+      res.status(200).send("Chat title updated successfully!");
+    } catch (err) {
+      console.log(err);
+      res.status(500).send("Error renaming chat!");
     }
   },
 };

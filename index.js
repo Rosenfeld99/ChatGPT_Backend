@@ -8,7 +8,7 @@ import url, { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import chatsCtrl from "./controllers/chatsCtrl.js";
 import swaggerJSDoc from "swagger-jsdoc";
-import swaggerUi from 'swagger-ui-express'
+import swaggerUi from "swagger-ui-express";
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -76,7 +76,9 @@ app.get("/api/chats/:id/:userId", chatsCtrl.geteSingleChat);
 
 app.put("/api/chats/:id/:userId", chatsCtrl.editChat);
 
-app.delete("/chats/:userId/:id", chatsCtrl.deleteChat);
+app.delete("/api/chats/:userId/:id", chatsCtrl.deleteChat);
+
+app.put("/api/chats/:userId/chats/:id/rename", chatsCtrl.renameChat);
 
 // app.use((err, req, res, next) => {
 //   console.error(err.stack);
